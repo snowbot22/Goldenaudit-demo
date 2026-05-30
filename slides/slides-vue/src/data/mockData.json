@@ -1,0 +1,50 @@
+{
+  "slides": [
+    {
+      "id": 1,
+      "type": "content",
+      "title": "Bienvenido slides de entrenamiento",
+      "text": "En estos slides se revisaran las diferentes auditorias que se revisaran, se incluiran preguntas cuestionario en donde se tendra que elegir entre dos ",
+      "imageUrl": "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1470&auto=format&fit=crop"
+    },
+    {
+      "id": 2,
+      "type": "content",
+      "title": "Test Apariencia de Producto Final",
+      "text": "Quality isn't an act, it's a habit. We focus on transparency, efficiency, and continuous improvement to deliver the best possible results.",
+      "imageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1470&auto=format&fit=crop"
+    },
+    {
+      "id": 3,
+      "type": "question",
+      "title": "Test Apariencia de Producto Final",
+      "text": "Elige la imagen que no tiene incidencias",
+      "options": [
+        {
+          "id": "A",
+          "text": "../Correcta.png",
+          "score": 10
+        },
+        {
+          "id": "B",
+          "text": "../Incorrecta.png",
+          "score": 0
+        }
+      ]
+    }
+  ],
+  "scoring": {
+    "excellent": {
+      "min": 25,
+      "message": "Outstanding! You have a perfect grasp of our quality standards."
+    },
+    "good": {
+      "min": 15,
+      "message": "Good job! You know the basics, but there's room for improvement."
+    },
+    "needs_improvement": {
+      "min": 0,
+      "message": "Please review the materials again. Understanding these concepts is critical."
+    }
+  }
+}
