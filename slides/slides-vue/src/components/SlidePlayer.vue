@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import mockData from '../data/mockData.json'
 import ContentSlide from './ContentSlide.vue'
 import QuestionSlide from './QuestionSlide.vue'
@@ -70,6 +70,57 @@ const handleRestart = () => {
 const progress = computed(() => {
   return ((currentSlideIndex.value + 1) / slides.length) * 100
 })
+
+const isSpeaking = ref(false)
+let currentUtterance = null
+
+const stopSpeech = () => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel()
+  }
+  isSpeaking.value = false
+}
+
+const speakText = (text) => {
+  if (!('speechSynthesis' in window)) return
+
+  window.speechSynthesis.cancel()
+  
+  if (!text) return
+
+  currentUtterance = new SpeechSynthesisUtterance(text)
+  currentUtterance.lang = 'es-ES'
+  
+  currentUtterance.onend = () => {
+    isSpeaking.value = false
+  }
+  
+  currentUtterance.onerror = () => {
+    isSpeaking.value = false
+  }
+  
+  isSpeaking.value = true
+  window.speechSynthesis.speak(currentUtterance)
+}
+
+const toggleSpeech = () => {
+  if (isSpeaking.value) {
+    stopSpeech()
+  } else {
+    const textToRead = `${currentSlide.value.title}. ${currentSlide.value.text}`
+    speakText(textToRead)
+  }
+}
+
+// Cancel speech on slide change
+watch(currentSlideIndex, () => {
+  stopSpeech()
+})
+
+// Cancel speech on component unmount
+onUnmounted(() => {
+  stopSpeech()
+})
 </script>
 
 <template>
@@ -104,8 +155,23 @@ const progress = computed(() => {
           Previous
         </button>
         
-        <div class="indicator">
-          {{ currentSlideIndex + 1 }} / {{ slides.length }}
+        <div class="indicator-group">
+          <div class="indicator">
+            {{ currentSlideIndex + 1 }} / {{ slides.length }}
+          </div>
+          
+          <button 
+            v-if="currentSlide.type === 'content'"
+            class="btn-audio-toggle"
+            @click="toggleSpeech"
+            :class="{ 'speaking': isSpeaking }"
+            :title="isSpeaking ? 'Detener lectura' : 'Escuchar diapositiva'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="megaphone-icon">
+              <path d="m3 11 18-5v12L3 13v-2z"></path>
+              <path d="M11.6 16.8 9 22H4l2.5-5"></path>
+            </svg>
+          </button>
         </div>
         
         <button 
@@ -186,5 +252,50 @@ const progress = computed(() => {
   color: var(--color-text-muted);
   font-size: 0.9rem;
   letter-spacing: 2px;
+}
+
+.indicator-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-audio-toggle {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.btn-audio-toggle:hover {
+  background: rgba(15, 76, 129, 0.1);
+  color: var(--color-primary);
+}
+
+.btn-audio-toggle.speaking {
+  color: var(--color-primary);
+  background: rgba(15, 76, 129, 0.15);
+  animation: pulse-audio 1.5s infinite;
+}
+
+@keyframes pulse-audio {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(15, 76, 129, 0.4);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 6px rgba(15, 76, 129, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(15, 76, 129, 0);
+  }
 }
 </style>
